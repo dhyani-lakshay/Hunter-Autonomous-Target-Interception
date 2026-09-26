@@ -83,7 +83,6 @@ This combines Missions 1 and 2:
 
 **Prediction RMSE:** `target_prediction` is the planned **intercept point**, which is ahead of the Runner on purpose. The local scorer compares it with the Runner's *current* position, so this error is naturally larger than the estimate error.
 
-We also tested on many random maps, Runner paths and sensor settings, with no collisions.
 
 ## Tuning
 
