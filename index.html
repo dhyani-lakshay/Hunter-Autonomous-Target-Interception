@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HUNTER | Autonomous Target Interception</title>
+
+    <meta name="description"
+          content="HUNTER - Autonomous Target Interception using prediction, navigation and intelligent pursuit.">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            background: #05070a;
+            color: #e8edf2;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+
+            background:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+
+            background-size: 45px 45px;
+
+            mask-image: linear-gradient(
+                to bottom,
+                black,
+                transparent 85%
+            );
+
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+
+            position: fixed;
+
+            width: 600px;
+            height: 600px;
+
+            top: -250px;
+            right: -200px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0,220,255,0.12),
+                    transparent 65%
+                );
+
+            pointer-events: none;
+            z-index: -1;
+        }
+
+
+        /* =========================
+           NAVIGATION
+        ========================== */
+
+        nav {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 70px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7%;
+
+            background: rgba(5,7,10,0.75);
+
+            backdrop-filter: blur(14px);
+
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+
+            font-weight: 800;
+
+            letter-spacing: 4px;
+
+            color: white;
+        }
+
+        .logo span {
+            color: #00d9ff;
+        }
+
+        nav ul {
+            display: flex;
+
+            list-style: none;
+
+            gap: 32px;
+        }
+
+        nav a {
+            text-decoration: none;
+
+            color: #aab4bf;
+
+            font-size: 0.9rem;
+
+            transition: 0.25s;
+        }
+
+        nav a:hover {
+            color: #00d9ff;
+        }
+
+
+        /* =========================
+           HERO
+        ========================== */
+
+        .hero {
+            min-height: 100vh;
+
+            padding: 150px 8% 100px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1050px;
+
+            text-align: center;
+        }
+
+        .status {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding: 7px 15px;
+
+            margin-bottom: 25px;
+
+            border: 1px solid rgba(0,217,255,0.25);
+
+            border-radius: 30px;
+
+            color: #00d9ff;
+
+            background: rgba(0,217,255,0.05);
+
+            font-size: 0.8rem;
+
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #00d9ff;
+
+            box-shadow: 0 0 12px #00d9ff;
+
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.35;
+                transform: scale(0.7);
+            }
+
+        }
+
+        .hero h1 {
+            font-size: clamp(4rem, 12vw, 9rem);
+
+            line-height: 0.9;
+
+            letter-spacing: -5px;
+
+            font-weight: 900;
+
+            background:
+                linear-gradient(
+                    120deg,
+                    #ffffff,
+                    #00d9ff,
+                    #ffffff
+                );
+
+            background-size: 200% auto;
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+
+            animation: gradientMove 5s linear infinite;
+        }
+
+        @keyframes gradientMove {
+
+            to {
+                background-position: 200% center;
+            }
+
+        }
+
+        .hero h2 {
+            margin-top: 25px;
+
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+
+            font-weight: 400;
+
+            color: #8e9aa6;
+
+            letter-spacing: 3px;
+        }
+
+        .hero-description {
+            max-width: 700px;
+
+            margin: 25px auto 0;
+
+            color: #77828d;
+
+            font-size: 1rem;
+        }
+
+        .hero-buttons {
+            margin-top: 40px;
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+
+            padding: 13px 25px;
+
+            border-radius: 7px;
+
+            text-decoration: none;
+
+            font-size: 0.9rem;
+
+            font-weight: 600;
+
+            transition: 0.25s;
+        }
+
+        .btn-primary {
+            background: #00d9ff;
+
+            color: #031015;
+
+            box-shadow:
+                0 0 25px rgba(0,217,255,0.18);
+        }
+
+        .btn-primary:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 0 35px rgba(0,217,255,0.35);
+        }
+
+        .btn-secondary {
+
+            border: 1px solid #303a43;
+
+            color: #cbd3da;
+
+            background: rgba(255,255,255,0.02);
+        }
+
+        .btn-secondary:hover {
+
+            border-color: #00d9ff;
+
+            color: #00d9ff;
+        }
+
+
+        /* =========================
+           SECTIONS
+        ========================== */
+
+        section {
+
+            padding: 100px 8%;
+
+            max-width: 1250px;
+
+            margin: auto;
+        }
+
+        .section-label {
+
+            color: #00d9ff;
+
+            font-size: 0.75rem;
+
+            font-weight: 700;
+
+            letter-spacing: 3px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+
+            font-size: clamp(2rem, 4vw, 3rem);
+
+            margin-bottom: 15px;
+        }
+
+        .section-description {
+
+            max-width: 720px;
+
+            color: #7f8b96;
+
+            margin-bottom: 50px;
+        }
+
+
+        /* =========================
+           MISSIONS
+        ========================== */
+
+        .missions {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 20px;
+        }
+
+        .mission-card {
+
+            position: relative;
+
+            padding: 30px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.045),
+                    rgba(255,255,255,0.015)
+                );
+
+            border: 1px solid #202a32;
+
+            border-radius: 14px;
+
+            transition: 0.35s;
+
+            overflow: hidden;
+        }
+
+        .mission-card::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 2px;
+
+            background: #00d9ff;
+
+            transform: scaleX(0);
+
+            transform-origin: left;
+
+            transition: 0.35s;
+        }
+
+        .mission-card:hover {
+
+            transform: translateY(-8px);
+
+            border-color: #30404b;
+
+            background:
+                rgba(0,217,255,0.035);
+        }
+
+        .mission-card:hover::before {
+
+            transform: scaleX(1);
+        }
+
+        .mission-number {
+
+            font-size: 0.75rem;
+
+            color: #00d9ff;
+
+            letter-spacing: 2px;
+
+            font-weight: 700;
+        }
+
+        .mission-card h3 {
+
+            margin-top: 15px;
+
+            font-size: 1.45rem;
+        }
+
+        .mission-card p {
+
+            margin-top: 12px;
+
+            color: #7f8b96;
+
+            font-size: 0.9rem;
+        }
+
+        .mission-tech {
+
+            margin-top: 22px;
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 7px;
+        }
+
+        .tag {
+
+            padding: 5px 9px;
+
+            border-radius: 5px;
+
+            background: #10171d;
+
+            border: 1px solid #26313a;
+
+            color: #87939e;
+
+            font-size: 0.7rem;
+        }
+
+
+        /* =========================
+           SYSTEM
+        ========================== */
+
+        .system {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 50px;
+
+            align-items: center;
+        }
+
+        .system-diagram {
+
+            min-height: 380px;
+
+            border: 1px solid #202a32;
+
+            border-radius: 15px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0,217,255,0.08),
+                    transparent 60%
+                );
+
+            position: relative;
+        }
+
+        .radar {
+
+            width: 230px;
+            height: 230px;
+
+            border-radius: 50%;
+
+            border:
+                1px solid rgba(0,217,255,0.4);
+
+            background:
+
+                linear-gradient(
+                    transparent 49.5%,
+                    rgba(0,217,255,0.15) 50%,
+                    transparent 50.5%
+                ),
+
+                linear-gradient(
+                    90deg,
+                    transparent 49.5%,
+                    rgba(0,217,255,0.15) 50%,
+                    transparent 50.5%
+                );
+
+            position: relative;
+        }
+
+        .radar::before,
+        .radar::after {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 25px;
+
+            border:
+                1px solid rgba(0,217,255,0.2);
+
+            border-radius: 50%;
+        }
+
+        .radar::after {
+            inset: 70px;
+        }
+
+        .hunter-dot {
+
+            position: absolute;
+
+            width: 12px;
+            height: 12px;
+
+            background: white;
+
+            border-radius: 50%;
+
+            top: 52%;
+            left: 35%;
+
+            box-shadow:
+                0 0 15px white;
+        }
+
+        .target-dot {
+
+            position: absolute;
+
+            width: 12px;
+            height: 12px;
+
+            background: #00d9ff;
+
+            border-radius: 50%;
+
+            top: 25%;
+            right: 25%;
+
+            box-shadow:
+                0 0 20px #00d9ff;
+        }
+
+        .target-line {
+
+            position: absolute;
+
+            width: 115px;
+            height: 1px;
+
+            background: #00d9ff;
+
+            top: 38%;
+            left: 39%;
+
+            transform:
+                rotate(-35deg);
+
+            transform-origin: left;
+
+            opacity: 0.5;
+        }
+
+        .system-list {
+
+            list-style: none;
+
+            margin-top: 25px;
+        }
+
+        .system-list li {
+
+            padding: 13px 0;
+
+            border-bottom:
+                1px solid #1c252c;
+
+            color: #8b96a0;
+
+            font-size: 0.9rem;
+        }
+
+        .system-list li::before {
+
+            content: "→";
+
+            color: #00d9ff;
+
+            margin-right: 10px;
+        }
+
+
+        /* =========================
+           WORKFLOW
+        ========================== */
+
+        .workflow {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+        }
+
+        .workflow-item {
+
+            padding: 25px;
+
+            border-left:
+                1px solid #28323a;
+
+            background:
+                rgba(255,255,255,0.015);
+        }
+
+        .workflow-item span {
+
+            color: #00d9ff;
+
+            font-size: 0.7rem;
+
+            letter-spacing: 2px;
+        }
+
+        .workflow-item h3 {
+
+            margin: 10px 0;
+        }
+
+        .workflow-item p {
+
+            color: #78848e;
+
+            font-size: 0.85rem;
+        }
+
+
+        /* =========================
+           CODE
+        ========================== */
+
+        .code-window {
+
+            background: #080c10;
+
+            border: 1px solid #202a32;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .code-header {
+
+            height: 40px;
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 0 15px;
+
+            border-bottom:
+                1px solid #202a32;
+
+            color: #65717c;
+
+            font-size: 0.75rem;
+        }
+
+        .terminal-dots {
+
+            display: flex;
+
+            gap: 5px;
+
+            margin-right: 15px;
+        }
+
+        .terminal-dots span {
+
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #39434b;
+        }
+
+        pre {
+
+            padding: 25px;
+
+            overflow-x: auto;
+
+            color: #9fb0bc;
+
+            font-family:
+                Consolas,
+                Monaco,
+                monospace;
+
+            font-size: 0.82rem;
+
+            line-height: 1.8;
+        }
+
+        .keyword {
+            color: #00d9ff;
+        }
+
+        .string {
+            color: #b8d87a;
+        }
+
+
+        /* =========================
+           TECHNOLOGIES
+        ========================== */
+
+        .tech-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 12px;
+        }
+
+        .tech {
+
+            padding: 20px;
+
+            border: 1px solid #202a32;
+
+            border-radius: 9px;
+
+            text-align: center;
+
+            color: #9aa5ae;
+
+            background:
+                rgba(255,255,255,0.015);
+
+            transition: 0.25s;
+        }
+
+        .tech:hover {
+
+            border-color: #00d9ff;
+
+            color: #00d9ff;
+
+            transform:
+                translateY(-3px);
+        }
+
+
+        /* =========================
+           CTA
+        ========================== */
+
+        .cta {
+
+            text-align: center;
+
+            padding: 80px 30px;
+
+            border: 1px solid #202a32;
+
+            border-radius: 18px;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(0,217,255,0.08),
+                    transparent 60%
+                );
+        }
+
+        .cta h2 {
+
+            font-size:
+                clamp(2rem, 5vw, 3.5rem);
+
+            margin-bottom: 15px;
+        }
+
+        .cta p {
+
+            max-width: 600px;
+
+            margin: auto;
+
+            color: #7e8993;
+        }
+
+
+        /* =========================
+           FOOTER
+        ========================== */
+
+        footer {
+
+            padding: 35px 8%;
+
+            border-top:
+                1px solid #1c252c;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            color: #5f6b75;
+
+            font-size: 0.8rem;
+        }
+
+        footer a {
+
+            color: #00d9ff;
+
+            text-decoration: none;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 900px) {
+
+            nav ul {
+                display: none;
+            }
+
+            .missions {
+                grid-template-columns: 1fr;
+            }
+
+            .system {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tech-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            section {
+                padding: 75px 6%;
+            }
+
+            .hero {
+
+                padding-left: 6%;
+                padding-right: 6%;
+            }
+
+            .hero h1 {
+                letter-spacing: -2px;
+            }
+
+            .workflow {
+                grid-template-columns: 1fr;
+            }
+
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+
+                flex-direction: column;
+
+                gap: 10px;
+
+                text-align: center;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     NAVIGATION
+========================== -->
+
+<nav>
+
+    <div class="logo">
+        HUNTER<span>.</span>
+    </div>
+
+    <ul>
+
+        <li>
+            <a href="#missions">
+                Missions
+            </a>
+        </li>
+
+        <li>
+            <a href="#system">
+                System
+            </a>
+        </li>
+
+        <li>
+            <a href="#workflow">
+                Workflow
+            </a>
+        </li>
+
+        <li>
+            <a href="#setup">
+                Setup
+            </a>
+        </li>
+
+    </ul>
+
+</nav>
+
+
+<!-- =========================
+     HERO
+========================== -->
+
+<header class="hero">
+
+    <div class="hero-content">
+
+        <div class="status">
+
+            <span class="status-dot"></span>
+
+            AUTONOMOUS TARGET INTERCEPTION
+
+        </div>
+
+
+        <h1>
+            HUNTER
+        </h1>
+
+
+        <h2>
+            FIND · PREDICT · HUNT
+        </h2>
+
+
+        <p class="hero-description">
+
+            An autonomous pursuit system designed to locate,
+            predict and intercept a moving target in a simulated
+            environment using intelligent navigation and
+            real-time control.
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <a
+                href="#missions"
+                class="btn btn-primary"
+            >
+                Explore Missions
+            </a>
+
+
+            <a
+                href="#setup"
+                class="btn btn-secondary"
+            >
+                Run the Simulator
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     MISSIONS
+========================== -->
+
+<section id="missions">
+
+    <div class="section-label">
+        01 / Missions
+    </div>
+
+
+    <h2 class="section-title">
+        Three stages of pursuit.
+    </h2>
+
+
+    <p class="section-description">
+
+        HUNTER progressively combines localization,
+        prediction, navigation and interception to solve
+        increasingly complex autonomous pursuit scenarios.
+
+    </p>
+
+
+    <div class="missions">
+
+
+        <article class="mission-card">
+
+            <div class="mission-number">
+                MISSION 01
+            </div>
+
+            <h3>
+                FIND
+            </h3>
+
+            <p>
+
+                Locate and reach a stationary Runner while
+                navigating through a static obstacle environment.
+
+            </p>
+
+            <div class="mission-tech">
+
+                <span class="tag">
+                    A*
+                </span>
+
+                <span class="tag">
+                    Path Planning
+                </span>
+
+                <span class="tag">
+                    Obstacle Avoidance
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="mission-card">
+
+            <div class="mission-number">
+                MISSION 02
+            </div>
+
+            <h3>
+                PREDICT
+            </h3>
+
+            <p>
+
+                Estimate the future position of a moving Runner
+                from imperfect and delayed observations.
+
+            </p>
+
+            <div class="mission-tech">
+
+                <span class="tag">
+                    Velocity Estimation
+                </span>
+
+                <span class="tag">
+                    Prediction
+                </span>
+
+                <span class="tag">
+                    Interception
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="mission-card">
+
+            <div class="mission-number">
+                MISSION 03
+            </div>
+
+            <h3>
+                HUNT
+            </h3>
+
+            <p>
+
+                Combine prediction and obstacle-aware navigation
+                to autonomously intercept a moving Runner.
+
+            </p>
+
+            <div class="mission-tech">
+
+                <span class="tag">
+                    Prediction
+                </span>
+
+                <span class="tag">
+                    A*
+                </span>
+
+                <span class="tag">
+                    Replanning
+                </span>
+
+            </div>
+
+        </article>
+
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     SYSTEM
+========================== -->
+
+<section id="system">
+
+    <div class="section-label">
+        02 / Architecture
+    </div>
+
+
+    <h2 class="section-title">
+        Sense. Predict. Navigate. Intercept.
+    </h2>
+
+
+    <div class="system">
+
+
+        <div class="system-diagram">
+
+            <div class="radar">
+
+                <div class="hunter-dot"></div>
+
+                <div class="target-dot"></div>
+
+                <div class="target-line"></div>
+
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <p class="section-description">
+
+                The controller continuously processes the
+                current Hunter state and Runner observations
+                to determine the next control command.
+
+            </p>
+
+
+            <ul class="system-list">
+
+                <li>
+                    Receive Hunter and Runner observations
+                </li>
+
+                <li>
+                    Estimate target motion from measurements
+                </li>
+
+                <li>
+                    Predict a future interception position
+                </li>
+
+                <li>
+                    Generate an obstacle-aware path
+                </li>
+
+                <li>
+                    Replan as the target moves
+                </li>
+
+                <li>
+                    Execute velocity and angular commands
+                </li>
+
+            </ul>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     WORKFLOW
+========================== -->
+
+<section id="workflow">
+
+    <div class="section-label">
+        03 / Control Loop
+    </div>
+
+
+    <h2 class="section-title">
+        Autonomous control pipeline.
+    </h2>
+
+
+    <p class="section-description">
+
+        Each control cycle updates the internal state
+        and determines the next action of the Hunter.
+
+    </p>
+
+
+    <div class="workflow">
+
+
+        <div class="workflow-item">
+
+            <span>
+                STEP 01
+            </span>
+
+            <h3>
+                Observe
+            </h3>
+
+            <p>
+                Read the latest sensor and target observations.
+            </p>
+
+        </div>
+
+
+        <div class="workflow-item">
+
+            <span>
+                STEP 02
+            </span>
+
+            <h3>
+                Predict
+            </h3>
+
+            <p>
+                Estimate target velocity and future position.
+            </p>
+
+        </div>
+
+
+        <div class="workflow-item">
+
+            <span>
+                STEP 03
+            </span>
+
+            <h3>
+                Plan
+            </h3>
+
+            <p>
+                Calculate an efficient collision-free route.
+            </p>
+
+        </div>
+
+
+        <div class="workflow-item">
+
+            <span>
+                STEP 04
+            </span>
+
+            <h3>
+                Hunt
+            </h3>
+
+            <p>
+                Execute the control command and repeat.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     SETUP
+========================== -->
+
+<section id="setup">
+
+    <div class="section-label">
+        04 / Quick Start
+    </div>
+
+
+    <h2 class="section-title">
+        Run HUNTER locally.
+    </h2>
+
+
+    <p class="section-description">
+
+        Clone the repository, create the Python environment,
+        install the dependencies and launch a mission.
+
+    </p>
+
+
+    <div class="code-window">
+
+
+        <div class="code-header">
+
+            <div class="terminal-dots">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+            PowerShell
+
+        </div>
+
+
+        <pre><code><span class="keyword">git</span> clone https://github.com/dhyani-lakshay/Hunter-Autonomous-Target-Interception.git
+<span class="keyword">cd</span> Hunter-Autonomous-Target-Interception
+
+<span class="keyword">python</span> -m venv .venv
+
+<span class="keyword">.venv\Scripts\Activate.ps1</span>
+
+<span class="keyword">pip</span> install -r requirements.txt
+
+<span class="keyword">run_mission1_A.bat</span></code></pre>
+
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     TECHNOLOGIES
+========================== -->
+
+<section>
+
+    <div class="section-label">
+        05 / Technology
+    </div>
+
+
+    <h2 class="section-title">
+        Built with.
+    </h2>
+
+
+    <p class="section-description">
+
+        Core technologies used for the autonomous simulation
+        and controller development.
+
+    </p>
+
+
+    <div class="tech-grid">
+
+        <div class="tech">
+            Python
+        </div>
+
+        <div class="tech">
+            PyBullet
+        </div>
+
+        <div class="tech">
+            NumPy
+        </div>
+
+        <div class="tech">
+            A* Path Planning
+        </div>
+
+        <div class="tech">
+            Motion Prediction
+        </div>
+
+        <div class="tech">
+            Obstacle Avoidance
+        </div>
+
+        <div class="tech">
+            Autonomous Control
+        </div>
+
+        <div class="tech">
+            Real-Time Replanning
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     GITHUB CTA
+========================== -->
+
+<section>
+
+    <div class="cta">
+
+        <div class="section-label">
+            Autonomous Pursuit
+        </div>
+
+
+        <h2>
+            FIND. PREDICT. HUNT.
+        </h2>
+
+
+        <p>
+
+            From locating a target to predicting its motion
+            and executing an autonomous interception.
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <a
+                href="https://github.com/dhyani-lakshay/Hunter-Autonomous-Target-Interception"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+            >
+                View on GitHub
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     FOOTER
+========================== -->
+
+<footer>
+
+    <div>
+        © 2026 HUNTER Project
+    </div>
+
+
+    <div>
+
+        Autonomous Target Interception ·
+
+        <a
+            href="https://github.com/dhyani-lakshay/Hunter-Autonomous-Target-Interception"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            GitHub
+        </a>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================== -->
+
+<script>
+
+    const elements = document.querySelectorAll(
+        ".mission-card, " +
+        ".workflow-item, " +
+        ".tech, " +
+        ".system-diagram, " +
+        ".code-window"
+    );
+
+
+    const observer = new IntersectionObserver(
+
+        entries => {
+
+            entries.forEach(entry => {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.style.opacity = "1";
+
+                    entry.target.style.transform =
+                        "translateY(0)";
+
+                }
+
+            });
+
+        },
+
+        {
+            threshold: 0.12
+        }
+
+    );
+
+
+    elements.forEach(element => {
+
+        element.style.opacity = "0";
+
+        element.style.transform =
+            "translateY(20px)";
+
+        element.style.transition =
+            "opacity 0.7s ease, transform 0.7s ease";
+
+        observer.observe(element);
+
+    });
+
+</script>
+
+
+</body>
+</html>
