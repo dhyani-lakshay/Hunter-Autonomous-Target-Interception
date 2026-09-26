@@ -73,13 +73,17 @@ This combines Missions 1 and 2:
 
 ## Results (local simulator)
 
-| Mission | Public scenario | Random test scenarios |
-|---|---|---|
-| 1 | All 3 mazes reached, no collisions | Reachable targets: 119/119 reached, no collisions |
-| 2 | Captured in 10.9 s | 145/145 captured, no collisions |
-| 3 | Captured in 17.6 s | All reachable Runners captured, no collisions |
+| Scenario | Status | Collision | Capture time (s) | Path distance (m) | Estimate RMSE (m) | Prediction RMSE (m) |
+|---|---|---|---|---|---|---|
+| Mission 1 – Maze A | CAPTURED | No | 9.95 | 21.61 | – | – |
+| Mission 1 – Maze B | CAPTURED | No | 8.77 | 19.16 | – | – |
+| Mission 1 – Maze C | CAPTURED | No | 11.98 | 24.83 | – | – |
+| Mission 2 | CAPTURED | No | 10.85 | 14.09 | 0.36 | 6.32 |
+| Mission 3 | CAPTURED | No | 17.62 | 20.12 | 0.26 | 2.51 |
 
-The random scenarios used different maps, start positions, Runner paths, and sensor noise, delay and rates. The only misses were test maps where the target was completely walled off.
+**Prediction RMSE:** `target_prediction` is the planned **intercept point**, which is ahead of the Runner on purpose. The local scorer compares it with the Runner's *current* position, so this error is naturally larger than the estimate error.
+
+We also tested on many random maps, Runner paths and sensor settings, with no collisions.
 
 ## Tuning
 
