@@ -1,0 +1,2 @@
+pybullet-arm64==3.2.8
+numpy==2.2.6
