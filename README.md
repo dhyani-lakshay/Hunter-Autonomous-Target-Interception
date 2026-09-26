@@ -10,31 +10,47 @@ A Hunter robot has to reach a Runner robot in a simulated arena, across three mi
 | 2 – PREDICT | Intercept a target | Moving | No |
 | 3 – HUNT | Intercept a target | Moving | Yes |
 
-## Files
+## Repository structure
 
 ```
-controller_mission1.py   # Mission 1 – FIND
-controller_mission2.py   # Mission 2 – PREDICT
-controller_mission3.py   # Mission 3 – HUNT
+Hunter-Autonomous-Target-Interception/
+├── mission1/
+│   ├── HUNTER_ARENA.py            # simulator launcher (provided)
+│   ├── controller_mission1.py     # our Mission 1 controller
+│   ├── run_mission1_A.bat / .sh   # run Maze A
+│   ├── run_mission1_B.bat / .sh   # run Maze B
+│   └── run_mission1_C.bat / .sh   # run Maze C
+├── mission2/
+│   ├── HUNTER_ARENA.py
+│   ├── controller_mission2.py     # our Mission 2 controller
+│   └── run_mission2.bat / .sh
+├── mission3/
+│   ├── HUNTER_ARENA.py
+│   ├── controller_mission3.py     # our Mission 3 controller
+│   └── run_mission3.bat / .sh
+├── Problem_Statement.pdf
+├── README.md
+├── requirements.txt
+├── setup_ubuntu.sh
+└── setup_windows.bat
 ```
 
-Each file defines a `HunterController` class with `reset()`, `update()` and `get_debug()`, as described in `CONTROLLER_API.md`. Only plain Python (`math`, `heapq`) is used.
+Each controller defines a `HunterController` class with `reset()`, `update()` and `get_debug()`. Only plain Python (`math`, `heapq`) is used in the controllers.
 
 ## How to run
 
-1. Put the three controller files in the HUNTER starter-kit folder, next to `HUNTER_ARENA.py`.
-2. Install the dependencies once:
+1. Install the dependencies once, from the main folder:
    - Windows: `setup_windows.bat`
    - Ubuntu: `./setup_ubuntu.sh`
-3. Run a mission:
+2. Go into a mission folder and run its script:
 
-| Mission | Windows | Ubuntu |
-|---|---|---|
-| 1 | `run_mission1_A.bat` (also `_B`, `_C`) | `./run_mission1_A.sh` (also `_B`, `_C`) |
-| 2 | `run_mission2.bat` | `./run_mission2.sh` |
-| 3 | `run_mission3.bat` | `./run_mission3.sh` |
+| Mission | Folder | Windows | Ubuntu |
+|---|---|---|---|
+| 1 | `mission1/` | `run_mission1_A.bat` (also `_B`, `_C`) | `./run_mission1_A.sh` (also `_B`, `_C`) |
+| 2 | `mission2/` | `run_mission2.bat` | `./run_mission2.sh` |
+| 3 | `mission3/` | `run_mission3.bat` | `./run_mission3.sh` |
 
-Results are saved in the `results/` folder.
+Results are saved in a `results/` folder inside each mission folder.
 
 ## How it works
 
@@ -82,7 +98,6 @@ This combines Missions 1 and 2:
 | Mission 3 | CAPTURED | No | 17.62 | 20.12 | 0.26 | 2.51 |
 
 **Prediction RMSE:** `target_prediction` is the planned **intercept point**, which is ahead of the Runner on purpose. The local scorer compares it with the Runner's *current* position, so this error is naturally larger than the estimate error.
-
 
 ## Tuning
 
