@@ -37,6 +37,19 @@ Hunter-Autonomous-Target-Interception/
 
 Each controller defines a `HunterController` class with `reset()`, `update()` and `get_debug()`. Only plain Python (`math`, `heapq`) is used in the controllers.
 
+## Tools and libraries
+
+| Tool / library | Used for |
+|---|---|
+| **Python 3.11** (64-bit) | Language for the controllers and the simulator |
+| **PyBullet 3.2.8** | 3D simulation and visualization of the arena (used by `HUNTER_ARENA.py`) |
+| **NumPy 2.2.6** | Used by the simulator (sensor noise) |
+| `math` (Python standard library) | Geometry, angles and distances in the controllers |
+| `heapq` (Python standard library) | Priority queue for the A\* and Dijkstra path searches |
+| **Git & GitHub** | Version control and sharing the code |
+
+The controllers themselves use **only the Python standard library**. PyBullet and NumPy are needed only to run the simulator, and are listed in `requirements.txt`.
+
 ## How to run
 
 1. Install the dependencies once, from the main folder:
@@ -98,6 +111,7 @@ This combines Missions 1 and 2:
 | Mission 3 | CAPTURED | No | 17.62 | 20.12 | 0.26 | 2.51 |
 
 **Prediction RMSE:** `target_prediction` is the planned **intercept point**, which is ahead of the Runner on purpose. The local scorer compares it with the Runner's *current* position, so this error is naturally larger than the estimate error.
+
 
 ## Tuning
 
