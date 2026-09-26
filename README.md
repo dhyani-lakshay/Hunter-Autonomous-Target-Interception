@@ -4,11 +4,15 @@ Our solution for the **HUNTER** challenge (Intra IIT Tech Meet 1.0, Mobile Robot
 
 A Hunter robot has to reach a Runner robot in a simulated arena, across three missions:
 
-| Mission | Task | Runner | Obstacles |
-|---|---|---|---|
-| 1 – FIND | Reach a target | Stationary | Yes |
-| 2 – PREDICT | Intercept a target | Moving | No |
-| 3 – HUNT | Intercept a target | Moving | Yes |
+| Mission     | Task               | Runner     | Obstacles |
+| ----------- | ------------------ | ---------- | --------- |
+| 1 – FIND    | Reach a target     | Stationary | Yes       |
+| 2 – PREDICT | Intercept a target | Moving     | No        |
+| 3 – HUNT    | Intercept a target | Moving     | Yes       |
+
+## Live Demo
+
+[View the interactive GitHub Pages simulation](https://dhyani-lakshay.github.io/Hunter-Autonomous-Target-Interception/)
 
 ## Repository structure
 
@@ -39,29 +43,30 @@ Each controller defines a `HunterController` class with `reset()`, `update()` an
 
 ## Tools and libraries
 
-| Tool / library | Used for |
-|---|---|
-| **Python 3.11** (64-bit) | Language for the controllers and the simulator |
-| **PyBullet 3.2.8** | 3D simulation and visualization of the arena (used by `HUNTER_ARENA.py`) |
-| **NumPy 2.2.6** | Used by the simulator (sensor noise) |
-| `math` (Python standard library) | Geometry, angles and distances in the controllers |
-| `heapq` (Python standard library) | Priority queue for the A\* and Dijkstra path searches |
-| **Git & GitHub** | Version control and sharing the code |
+| Tool / library                    | Used for                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| **Python 3.11** (64-bit)          | Language for the controllers and the simulator                           |
+| **PyBullet 3.2.8**                | 3D simulation and visualization of the arena (used by `HUNTER_ARENA.py`) |
+| **NumPy 2.2.6**                   | Used by the simulator (sensor noise)                                     |
+| `math` (Python standard library)  | Geometry, angles and distances in the controllers                        |
+| `heapq` (Python standard library) | Priority queue for the A* and Dijkstra path searches                     |
+| **Git & GitHub**                  | Version control and sharing the code                                     |
 
 The controllers themselves use **only the Python standard library**. PyBullet and NumPy are needed only to run the simulator, and are listed in `requirements.txt`.
 
 ## How to run
 
 1. Install the dependencies once, from the main folder:
-   - Windows: `setup_windows.bat`
-   - Ubuntu: `./setup_ubuntu.sh`
+
+   * Windows: `setup_windows.bat`
+   * Ubuntu: `./setup_ubuntu.sh`
 2. Go into a mission folder and run its script:
 
-| Mission | Folder | Windows | Ubuntu |
-|---|---|---|---|
-| 1 | `mission1/` | `run_mission1_A.bat` (also `_B`, `_C`) | `./run_mission1_A.sh` (also `_B`, `_C`) |
-| 2 | `mission2/` | `run_mission2.bat` | `./run_mission2.sh` |
-| 3 | `mission3/` | `run_mission3.bat` | `./run_mission3.sh` |
+| Mission | Folder      | Windows                                | Ubuntu                                  |
+| ------- | ----------- | -------------------------------------- | --------------------------------------- |
+| 1       | `mission1/` | `run_mission1_A.bat` (also `_B`, `_C`) | `./run_mission1_A.sh` (also `_B`, `_C`) |
+| 2       | `mission2/` | `run_mission2.bat`                     | `./run_mission2.sh`                     |
+| 3       | `mission3/` | `run_mission3.bat`                     | `./run_mission3.sh`                     |
 
 Results are saved in a `results/` folder inside each mission folder.
 
@@ -70,7 +75,7 @@ Results are saved in a `results/` folder inside each mission folder.
 ### Mission 1 – FIND
 
 1. **Map clearance:** we build a fine grid over the arena and compute each point's distance to the nearest wall.
-2. **Path search:** A\* finds a route that keeps the robot a safe distance from walls.
+2. **Path search:** A* finds a route that keeps the robot a safe distance from walls.
 3. **Shortcutting:** the route is shortened by skipping waypoints wherever a straight line is safe.
 4. **Driving:** the robot drives the straight parts at full speed and takes corners as smooth circular arcs, choosing the largest arc that stays clear of walls.
 5. **Safety check:** before each move, the robot checks that the next step is not too close to a wall.
@@ -95,23 +100,22 @@ This combines Missions 1 and 2:
 
 ## Assumptions
 
-- **Hunter shape:** the Hunter is a circle of radius 0.20 m. This is the simulator's default.
-- **Runner speed:** the Runner is slower than the Hunter, as stated in the API.
-- **Runner trajectory:** we **do not** use the Runner's trajectory, even though it is present in the scenario config. The Hunter only uses the noisy measurements.
-- **Sensor noise:** the noise level is not known in advance, so the filter uses a fixed estimate (0.25 m).
+* **Hunter shape:** the Hunter is a circle of radius 0.20 m. This is the simulator's default.
+* **Runner speed:** the Runner is slower than the Hunter, as stated in the API.
+* **Runner trajectory:** we **do not** use the Runner's trajectory, even though it is present in the scenario config. The Hunter only uses the noisy measurements.
+* **Sensor noise:** the noise level is not known in advance, so the filter uses a fixed estimate (0.25 m).
 
 ## Results (local simulator)
 
-| Scenario | Status | Collision | Capture time (s) | Path distance (m) | Estimate RMSE (m) | Prediction RMSE (m) |
-|---|---|---|---|---|---|---|
-| Mission 1 – Maze A | CAPTURED | No | 9.95 | 21.61 | – | – |
-| Mission 1 – Maze B | CAPTURED | No | 8.77 | 19.16 | – | – |
-| Mission 1 – Maze C | CAPTURED | No | 11.98 | 24.83 | – | – |
-| Mission 2 | CAPTURED | No | 10.85 | 14.09 | 0.36 | 6.32 |
-| Mission 3 | CAPTURED | No | 17.62 | 20.12 | 0.26 | 2.51 |
+| Scenario           | Status   | Collision | Capture time (s) | Path distance (m) | Estimate RMSE (m) | Prediction RMSE (m) |
+| ------------------ | -------- | --------- | ---------------- | ----------------- | ----------------- | ------------------- |
+| Mission 1 – Maze A | CAPTURED | No        | 9.95             | 21.61             | –                 | –                   |
+| Mission 1 – Maze B | CAPTURED | No        | 8.77             | 19.16             | –                 | –                   |
+| Mission 1 – Maze C | CAPTURED | No        | 11.98            | 24.83             | –                 | –                   |
+| Mission 2          | CAPTURED | No        | 10.85            | 14.09             | 0.36              | 6.32                |
+| Mission 3          | CAPTURED | No        | 17.62            | 20.12             | 0.26              | 2.51                |
 
 **Prediction RMSE:** `target_prediction` is the planned **intercept point**, which is ahead of the Runner on purpose. The local scorer compares it with the Runner's *current* position, so this error is naturally larger than the estimate error.
-
 
 ## Tuning
 
